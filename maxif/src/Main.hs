@@ -34,6 +34,7 @@ testsEj3 =
       indentar 2 (texto "a") ~?= texto "a",
       indentar 2 (texto "a" <+> linea <+> texto "b") ~?= texto "a" <+> indentar 2 (linea <+> texto "b"),
       indentar 2 (linea <+> texto "a") ~?= indentar 1 (indentar 1 (linea <+> texto "a"))
+      --indentar 1 (linea <+> texto "a") test primer linea vacia
     ]
 
 testsEj4 :: Test
