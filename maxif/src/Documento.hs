@@ -67,7 +67,7 @@ indentar i = foldDoc (Vacio) (Texto) (\t rec -> Linea (t + i) rec)
 
 
 mostrar :: Doc -> String
-mostrar = foldDoc ("") (\t rec -> t ++ rec) (\i rec -> "\n" ++ concat (replicate i " ") ++ rec)
+mostrar = foldDoc ("") (++) (\i rec -> "\n" ++ concat (replicate i " ") ++ rec)
 
 
 -- | Función dada que imprime un documento en pantalla

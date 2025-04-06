@@ -9,13 +9,24 @@ data PPON
   deriving (Eq, Show)
 
 pponAtomico :: PPON -> Bool
-pponAtomico = error "PENDIENTE: Ejercicio 5"
+pponAtomico ppon = case ppon of
+                    TextoPP s -> True
+                    IntPP n -> True
+                    ObjetoPP o -> False
 
+
+--devuelve True si el PPON es construido con ObjetoPP Y ademas todos sus sub-objetos son atomicos
 pponObjetoSimple :: PPON -> Bool
-pponObjetoSimple = error "PENDIENTE: Ejercicio 6"
+pponObjetoSimple (TextoPP t) = False
+pponObjetoSimple (IntPP n) = False
+pponObjetoSimple (ObjetoPP hijos) = foldr (\x rec -> (&&) (pponAtomico (snd x)) rec) True hijos
+
 
 intercalar :: Doc -> [Doc] -> Doc
-intercalar = error "PENDIENTE: Ejercicio 7"
+--intercalar separador = foldr (\x rec -> ) Vacio
+intercalar = error "PENDIENTE: Ejercicio 8"
+-- intercalar (texto ", ") [texto "a", texto "b", texto "c"]) ⇝"a, b, c"
+
 
 entreLlaves :: [Doc] -> Doc
 entreLlaves [] = texto "{ }"
