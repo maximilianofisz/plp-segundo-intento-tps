@@ -57,7 +57,6 @@ testsEj6 =
     [ pponObjetoSimple pericles ~?= True,
       pponObjetoSimple addams ~?= False,
       pponObjetoSimple (ObjetoPP [("nombre", TextoPP "Merlina"), ("0", pericles)]) ~?= False
-
     ]
 
 a, b, c :: Doc

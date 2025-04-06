@@ -47,7 +47,7 @@ infixr 6 <+>
 d1 <+> d2 = foldDoc (d2)
                     (\t rec -> case rec of
                               Vacio -> texto t
-                              Texto t' rec' -> texto (t ++ t')
+                              Texto t' rec' -> Texto (t ++ t') rec' -- cambiamos rec por rec'
                               Linea i rec' -> Texto t rec
                     )
                     (Linea) d1
