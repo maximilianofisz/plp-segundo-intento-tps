@@ -14,14 +14,12 @@ pponAtomico ppon = case ppon of
                     IntPP n -> True
                     ObjetoPP o -> False
 
-
 --devuelve True si el PPON es construido con ObjetoPP Y ademas todos sus sub-objetos son atomicos
 pponObjetoSimple :: PPON -> Bool
-pponObjetoSimple (ppon) = case ppon of
+pponObjetoSimple ppon = case ppon of
                           TextoPP t -> False
                           IntPP n -> False
-                          ObjetoPP hijos -> foldr (\x rec -> (&&) (pponAtomico (snd x)) rec) True hijos
-
+                          ObjetoPP hijos -> foldr ((&&) . pponAtomico . snd) True hijos
 
 intercalar :: Doc -> [Doc] -> Doc
 intercalar separador = foldr (\x rec -> if rec == vacio then x else (x <+> separador) <+> rec) vacio
@@ -47,7 +45,18 @@ entreLlaves ds =
     <+> texto "}"
 
 aplanar :: Doc -> Doc
-aplanar = error "PENDIENTE: Ejercicio 8"
+aplanar = foldDoc vacio (\t rec -> texto t <+> rec) (\i rec -> texto " " <+> rec)
+
+formatearObjeto :: [(String, PPON)] -> Doc
+formatearObjeto obj = if pponObjetoSimple (ObjetoPP obj) then
+                            texto "{ "
+                            <+> intercalar (texto ", ") (map (\(k, v) -> texto (show k) <+> texto ": " <+> pponADoc v) obj)
+                            <+> texto " }"
+                          else
+                            entreLlaves (map (\(c, v) -> texto (show c) <+> texto ": " <+> pponADoc v) obj)
 
 pponADoc :: PPON -> Doc
-pponADoc = error "PENDIENTE: Ejercicio 9"
+pponADoc p = case p of
+          TextoPP s -> texto (show s)
+          IntPP i -> texto (show i)
+          ObjetoPP obj -> formatearObjeto obj

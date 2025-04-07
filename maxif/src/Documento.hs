@@ -44,13 +44,13 @@ foldDoc cVacio cTexto cLinea doc = case doc of
 infixr 6 <+>
 
 (<+>) :: Doc -> Doc -> Doc
-d1 <+> d2 = foldDoc (d2)
+d1 <+> d2 = foldDoc d2
                     (\t rec -> case rec of
                               Vacio -> texto t
                               Texto t' rec' -> Texto (t ++ t') rec' -- cambiamos rec por rec'
                               Linea i rec' -> Texto t rec
                     )
-                    (Linea) d1
+                    Linea d1
 
 
 -- ejemplo
@@ -63,11 +63,10 @@ d1 <+> d2 = foldDoc (d2)
 
 
 indentar :: Int -> Doc -> Doc
-indentar i = foldDoc (Vacio) (Texto) (\t rec -> Linea (t + i) rec)
-
+indentar i = foldDoc Vacio Texto (\t rec -> Linea (t + i) rec)
 
 mostrar :: Doc -> String
-mostrar = foldDoc ("") (++) (\i rec -> "\n" ++ concat (replicate i " ") ++ rec)
+mostrar = foldDoc "" (++) (\i rec -> "\n" ++ concat (replicate i " ") ++ rec)
 
 
 -- | Función dada que imprime un documento en pantalla
