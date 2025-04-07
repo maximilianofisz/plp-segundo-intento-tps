@@ -55,6 +55,9 @@ formatearObjeto obj = if pponObjetoSimple (ObjetoPP obj) then
                           else
                             entreLlaves (map (\(c, v) -> texto (show c) <+> texto ": " <+> pponADoc v) obj)
 
+-- El esquema de recursion es global, ya que en formatearObjeto se accede directamente a la recursion de una subestructura de obj,
+-- espeficifamente cuando concatenamos el resultado de pponADoc v.
+
 pponADoc :: PPON -> Doc
 pponADoc p = case p of
           TextoPP s -> texto (show s)

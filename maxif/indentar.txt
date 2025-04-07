@@ -1,40 +1,125 @@
 Demostramos primero los siguientes lemas: 
 
-	1- indentar k Vacio = Vacio para todo k :: Int positivo.
+	L1: indentar k Vacio = Vacio para todo k :: Int positivo.
 
-	2- indentar k (Texto s d) = Texto s (indentar k d) para todo k :: Int positivo, s :: String y d :: Doc.
+	L2: indentar k (Texto s d) = Texto s (indentar k d) para todo k :: Int positivo, s :: String y d :: Doc.
 
-	3- indentar m (Linea k d) = Linea (m+k) (indentar m d) para todo m, k :: Int po- sitivos y d :: Doc.
+	L3: indentar m (Linea k d) = Linea (m+k) (indentar m d) para todo m, k :: Int positivos y d :: Doc.
 
-1) QVQ indentar k Vacio = Vacio para todo k :: Int positivo.
+Traemos las definciones útiles:
 
-	Traemos las definciones útiles:
+data Doc
+	= Vacio
+	| Texto String Doc
+	| Linea Int Doc
+	deriving (Eq, Show)
 
-	data Doc
-	  = Vacio
-	  | Texto String Doc
-	  | Linea Int Doc
-	  deriving (Eq, Show)
+foldDoc :: b -> (String -> b -> b) -> (Int -> b -> b) -> Doc -> b
+(FD) foldDoc cVacio cTexto cLinea doc = case doc of
+							Vacio -> cVacio
+							Texto t doc' -> cTexto t (rec doc') 
+							Linea i doc' -> cLinea i (rec doc')
+		where rec = foldDoc cVacio cTexto cLinea 
 
-	foldDoc :: b -> (String -> b -> b) -> (Int -> b -> b) -> Doc -> b
-	(FD) foldDoc cVacio cTexto cLinea doc = case doc of
-	                            Vacio -> cVacio
-	                            Texto t doc' -> cTexto t (rec doc') 
-	                            Linea i doc' -> cLinea i (rec doc')
-	        where rec = foldDoc cVacio cTexto cLinea 
+indentar :: Int -> Doc -> Doc
+(IN) indentar i = foldDoc Vacio
+					(\t rec -> Texto t rec) 
+					(\t rec -> Linea (t + i) rec)
 
-	indentar :: Int -> Doc -> Doc
-	(IN) indentar i = foldDoc Vacio
-	                    (\t rec -> Texto t rec) 
-	                    (\t rec -> Linea (t + i) rec)
+L1) QVQ indentar k Vacio = Vacio para todo k :: Int positivo.
+
+	indentar k Vacio 
+	(IN) = foldDoc Vacio (\t rec -> Texto t rec) (\t rec -> Linea (t + k) rec) Vacio
+	(FD) = Vacio
+
+L2) QVQ indentar k (Texto s d) = Texto s (indentar k d) para todo k :: Int positivo, s :: String y d :: Doc.
+
+	indentar k (Texto s d)
+	(IN) = foldDoc Vacio (\t rec -> Texto t rec) (\i rec -> Linea (i + k) rec) (Texto s d)
+	(FD) = (\t rec -> Texto t rec) s (foldDoc Vacio (\t rec -> Texto t rec) (\i rec -> Linea (i + k) rec) d)
+	(B) = Texto s (foldDoc Vacio (\t rec -> Texto t rec) (\i rec -> Linea (i + k) rec) d)
+	(IN) = Texto s (indentar k d)
+
+L3) QVQ indentar m (Linea k d) = Linea (m+k) (indentar m d) para todo m, k :: Int po- sitivos y d :: Doc.
+
+	indentar m (Linea k d) 
+	(IN) = foldDoc Vacio (\t rec -> Texto t rec) (\i rec -> Linea (i + m) rec) (Linea k d)
+	(FD) = (\i rec -> Linea (i + m) rec) k (foldDoc Vacio (\t rec -> Texto t rec) (\i rec -> Linea (i + k) rec) d)
+	(B) = Linea (k + m) (foldDoc Vacio (\t rec -> Texto t rec) (\i rec -> Linea (i + k) rec) d)
+	(IN) = Linea (m + k) (indentar m d)
+
+	
+-------------------------------------
+
+Ahora que ya demostramos todos los lemas, pasamos a la demo que nos pedían.
+
+Queremos probar que para todo n, m :: Int positivos y x :: Doc,
+	indentar n (indentar m x) = indentar (n+m) x
+
+Realizamos induccion estructural en Doc.
+
+P(d): para todo n, m :: Int positivos indentar n (indentar m d) = indentar (n+m) d
 
 
-	Demo por (IN):
-		indentar k Vacio = foldDoc Vacio (\t rec -> Texto t rec) (\t rec -> Linea (t + k) rec)Vacio
-	(FD) = Vacio.
+CB: d = Vacio.
 
-2) QVQ indentar k (Texto s d) = Texto s (indentar k d) para todo k :: Int positivo, s :: String y d :: Doc.
+	P(Vacio): indentar n (indentar m Vacio) = indentar (n+m) Vacio
 
+	Lado izquierdo:
+		indentar n (indentar m Vacio)
+		(L1) = indentar n Vacio
+		(L1) = Vacio
+
+	Lado derecho: 
+		indentar (n+m) Vacio
+		(L1) = Vacio
+	
+	Se cumple la igualdad
+
+PI: Quiero ver que también cumplen los documentos de tipo Texto y Linea. Es decir d = Texto s' d' o d = Linea i d'.
+	Suponemos que la propiedad vale para las subestructuras. Es decir:
+	HI: indentar n (indentar m d') = indentar (n+m) d'
+
+	P(Texto s' d'): indentar n (indentar m (Texto s' d')) = indentar (n+m) (Texto s' d')
+
+	Lado izquierdo:
+		indentar n (indentar m (Texto s' d'))
+		(L2) = indentar n (Texto s' (indentar m d'))
+		(L2) = Texto s' (indentar n (indentar m d'))
+		(HI) = Texto s' (indentar (n+m) d')
+
+	Lado derecho:
+		indentar (n+m) (Texto s' d')
+		(L2) = Texto s' (indentar (n+m) d')
+
+	Se cumple la igualdad.
+
+
+	P(Linea i d'): indentar n (indentar m (Linea i d')) = indentar (n+m) (Linea i d')
+
+	Lado izquierdo:
+		indentar n (indentar m (Linea i d'))
+		(L3) = indentar n (Linea (m+i) (indentar m d'))
+		(L3) = Linea (n+m+i) (indentar n (indentar m d'))
+		(HI) = Linea (n+m+i) (indentar (n+m) d')
+
+	Lado derecho:
+		indentar (n+m) (Linea i d')
+		(L3) = Linea (n+m+i) (indentar (n+m) d')
+
+	Se cumple la igualdad.
+
+Luego, queda demostrado por inducción estructural que para todo n, m :: Int positivos y x :: Doc,
+	indentar n (indentar m x) = indentar (n+m) x
+
+
+.
+
+
+
+----------------------
+
+Versión lemas en ind. estructural no sé si será necesario
 
 Vamos a hacer induccion estructural en Doc.
 P(d): indentar k (Texto s d) = Texto s (indentar k d) para todo k :: Int positivo, s :: String.
@@ -68,31 +153,3 @@ P(Texto s' d'): indentar k (Texto s (Texto s' d')) = Texto s (indentar k (Texto 
 	Se cumple la igualdad.
 
 P(Linea n d'): indentar k (Texto s (Linea n d')) = Texto s (indentar k (Linea n d'))
-
-	
-------------------------
-
-
-Versión fácil
-
-2) 
-indentar k (Texto s d)
-= foldDoc Vacio (\t rec -> Texto t rec) (\i rec -> Linea (i + k) rec) (Texto s d)
-= (\t rec -> Texto t rec) s (foldDoc Vacio (\t rec -> Texto t rec) (\i rec -> Linea (i + k) rec) d)
-= Texto s (foldDoc Vacio (\t rec -> Texto t rec) (\i rec -> Linea (i + k) rec) d)
-= Texto s (indentar k d)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	
