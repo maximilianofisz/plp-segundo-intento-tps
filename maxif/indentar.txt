@@ -1,0 +1,98 @@
+Demostramos primero los siguientes lemas: 
+
+	1- indentar k Vacio = Vacio para todo k :: Int positivo.
+
+	2- indentar k (Texto s d) = Texto s (indentar k d) para todo k :: Int positivo, s :: String y d :: Doc.
+
+	3- indentar m (Linea k d) = Linea (m+k) (indentar m d) para todo m, k :: Int po- sitivos y d :: Doc.
+
+1) QVQ indentar k Vacio = Vacio para todo k :: Int positivo.
+
+	Traemos las definciones útiles:
+
+	data Doc
+	  = Vacio
+	  | Texto String Doc
+	  | Linea Int Doc
+	  deriving (Eq, Show)
+
+	foldDoc :: b -> (String -> b -> b) -> (Int -> b -> b) -> Doc -> b
+	(FD) foldDoc cVacio cTexto cLinea doc = case doc of
+	                            Vacio -> cVacio
+	                            Texto t doc' -> cTexto t (rec doc') 
+	                            Linea i doc' -> cLinea i (rec doc')
+	        where rec = foldDoc cVacio cTexto cLinea 
+
+	indentar :: Int -> Doc -> Doc
+	(IN) indentar i = foldDoc Vacio
+	                    (\t rec -> Texto t rec) 
+	                    (\t rec -> Linea (t + i) rec)
+
+
+	Demo por (IN):
+		indentar k Vacio = foldDoc Vacio (\t rec -> Texto t rec) (\t rec -> Linea (t + k) rec)Vacio
+	(FD) = Vacio.
+
+2) QVQ indentar k (Texto s d) = Texto s (indentar k d) para todo k :: Int positivo, s :: String y d :: Doc.
+
+
+Vamos a hacer induccion estructural en Doc.
+P(d): indentar k (Texto s d) = Texto s (indentar k d) para todo k :: Int positivo, s :: String.
+
+CB: d = Vacio
+
+P(Vacio): indentar k (Texto s Vacio) = Texto s (indentar k Vacio)
+
+	Lado izquierdo:
+		(IN) = foldDoc Vacio (\t rec -> Texto t rec) (\t rec -> Linea (t + i) rec) (Texto s Vacio)
+		(FD y Beta) = Texto s (foldDoc Vacio (\t rec -> Texto t rec) (\t rec -> Linea (t + k) rec) Vacio)
+		(FD) = Texto s Vacio
+
+	Lado derecho: 
+		Por la demo del Lema 1, indentar k Vacio = Vacio
+		=> Texto s (indentar k Vacio) = Texto s Vacio
+
+Se cumple la igualdad.
+
+Ahora necesitamos ver que se cumple para d = Texto s' d' o d = Linea n d'.
+
+Sabiendo que vale (HI): indentar k (Texto s' d') = Texto s' (indentar k d')
+
+P(Texto s' d'): indentar k (Texto s (Texto s' d')) = Texto s (indentar k (Texto s' d'))
+
+	Lado izquierdo: indentar k (Texto s (Texto s' d'))
+		(IN) = foldDoc Vacio (\t rec -> Texto t rec) (\t rec -> Linea (t + k) rec) (Texto s (Texto s' d'))
+		(FD y Beta) = Texto s (foldDoc Vacio (\t rec -> Texto t rec) (\t rec -> Linea (t + k) rec) (Texto s' d'))
+		(IN) = Texto s (indentar k (Texto s' d'))
+
+	Se cumple la igualdad.
+
+P(Linea n d'): indentar k (Texto s (Linea n d')) = Texto s (indentar k (Linea n d'))
+
+	
+------------------------
+
+
+Versión fácil
+
+2) 
+indentar k (Texto s d)
+= foldDoc Vacio (\t rec -> Texto t rec) (\i rec -> Linea (i + k) rec) (Texto s d)
+= (\t rec -> Texto t rec) s (foldDoc Vacio (\t rec -> Texto t rec) (\i rec -> Linea (i + k) rec) d)
+= Texto s (foldDoc Vacio (\t rec -> Texto t rec) (\i rec -> Linea (i + k) rec) d)
+= Texto s (indentar k d)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
