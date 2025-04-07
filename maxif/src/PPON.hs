@@ -23,15 +23,8 @@ pponObjetoSimple ppon = case ppon of
 
 intercalar :: Doc -> [Doc] -> Doc
 intercalar separador = foldr (\x rec -> if rec == vacio then x else (x <+> separador) <+> rec) vacio
---intercalar = error "PENDIENTE: Ejercicio 8"
--- intercalar (texto ", ") [texto "a", texto "b", texto "c"]) ⇝"a, b, c"
--- intercalar (texto ", ") [texto "a", Linea 0 Vacio, texto "b"]) ⇝   ("a, \n, "b")    ("a\nb")
 
--- foldr1 f [texto "a", texto "b"]
--- f texto "a" (foldr1 f [texto "b"])
--- f texto "a" (texto "b")
--- texto "a" <+> texto "," <+> linea <+> texto "b"
--- texto "a" <+> (texto "," <+> (linea <+> texto "b"))
+
 entreLlaves :: [Doc] -> Doc
 entreLlaves [] = texto "{ }"
 entreLlaves ds =
@@ -48,18 +41,20 @@ aplanar :: Doc -> Doc
 aplanar = foldDoc vacio (\t rec -> texto t <+> rec) (\i rec -> texto " " <+> rec)
 
 formatearObjeto :: [(String, PPON)] -> Doc
-formatearObjeto obj = if pponObjetoSimple (ObjetoPP obj) then
+formatearObjeto hijos = if pponObjetoSimple (ObjetoPP hijos)
+                          then
                             texto "{ "
-                            <+> intercalar (texto ", ") (map (\(k, v) -> texto (show k) <+> texto ": " <+> pponADoc v) obj)
+                            <+> intercalar (texto ", ") (ctor hijos) 
                             <+> texto " }"
                           else
-                            entreLlaves (map (\(c, v) -> texto (show c) <+> texto ": " <+> pponADoc v) obj)
+                            entreLlaves (ctor hijos)
+          where ctor = map (\(k, v) -> texto (show k) <+> texto ": " <+> pponADoc v)
 
--- El esquema de recursion es global, ya que en formatearObjeto se accede directamente a la recursion de una subestructura de obj,
+-- El esquema de recursion es global, ya que en formatearObjeto se accede directamente a la recursion de una subestructura de hijos,
 -- espeficifamente cuando concatenamos el resultado de pponADoc v.
 
 pponADoc :: PPON -> Doc
 pponADoc p = case p of
           TextoPP s -> texto (show s)
           IntPP i -> texto (show i)
-          ObjetoPP obj -> formatearObjeto obj
+          ObjetoPP hijos -> formatearObjeto hijos

@@ -28,9 +28,6 @@ texto t | '\n' `elem` t = error "El texto no debe contener saltos de línea"
 texto [] = Vacio
 texto t = Texto t Vacio
 
--- foldDoc :: ... PENDIENTE: Ejercicio 1 ...
---foldDoc = error "PENDIENTE: Ejercicio 1"
-
 foldDoc :: b -> (String -> b -> b) -> (Int -> b -> b) -> Doc -> b
 foldDoc cVacio cTexto cLinea doc = case doc of
                             Vacio -> cVacio
@@ -47,19 +44,11 @@ infixr 6 <+>
 d1 <+> d2 = foldDoc d2
                     (\t rec -> case rec of
                               Vacio -> texto t
-                              Texto t' rec' -> Texto (t ++ t') rec' -- cambiamos rec por rec'
+                              Texto t' rec' -> Texto (t ++ t') rec'
                               Linea i rec' -> Texto t rec
                     )
                     Linea d1
 
-
--- ejemplo
--- d1 = texto "a" <+> linea <+> texto "b"
--- texto "a" <+> (Linea 0 Vacio <+> Texto "b" Vacio) (la segunda parte del concat queda guardad en cVacio)
--- texto "a" <+> (Linea 0 (Texto "b" Vacio))
--- Texto "a" Vacio <+> (Linea 0 (Texto "b" Vacio))
--- Texto "a" (fold f g h Vacio)
--- Texto "a" (Linea 0 (Texto "b" Vacio))
 
 
 indentar :: Int -> Doc -> Doc
@@ -70,10 +59,6 @@ mostrar = foldDoc "" (++) (\i rec -> "\n" ++ concat (replicate i " ") ++ rec)
 
 
 -- | Función dada que imprime un documento en pantalla
-
--- ghci> imprimir (Texto "abc" (Linea 2 (Texto "def" Vacio)))
--- abc
---   def
 
 imprimir :: Doc -> IO ()
 imprimir d = putStrLn (mostrar d)
