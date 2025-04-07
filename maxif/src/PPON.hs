@@ -14,7 +14,7 @@ pponAtomico ppon = case ppon of
                     IntPP n -> True
                     ObjetoPP o -> False
 
---devuelve True si el PPON es construido con ObjetoPP Y ademas todos sus sub-objetos son atomicos
+--devuelve True si y solo si el PPON es construido con ObjetoPP Y ademas todos sus sub-objetos son pponAtomicos
 pponObjetoSimple :: PPON -> Bool
 pponObjetoSimple ppon = case ppon of
                           TextoPP t -> False
@@ -40,19 +40,22 @@ entreLlaves ds =
 aplanar :: Doc -> Doc
 aplanar = foldDoc vacio (\t rec -> texto t <+> rec) (\i rec -> texto " " <+> rec)
 
+
+-- Aux principal de pponADoc
+-- Un ObjetoPP se procesa como simple o "compuesto" recursivamente
 formatearObjeto :: [(String, PPON)] -> Doc
 formatearObjeto hijos = if pponObjetoSimple (ObjetoPP hijos)
-                          then
+                          then --simple
                             texto "{ "
                             <+> intercalar (texto ", ") (ctor hijos) 
                             <+> texto " }"
-                          else
+                          else --comp
                             entreLlaves (ctor hijos)
           where ctor = map (\(k, v) -> texto (show k) <+> texto ": " <+> pponADoc v)
 
+
 -- El esquema de recursion es global, ya que en formatearObjeto se accede directamente a la recursion de una subestructura de hijos,
 -- espeficifamente cuando concatenamos el resultado de pponADoc v.
-
 pponADoc :: PPON -> Doc
 pponADoc p = case p of
           TextoPP s -> texto (show s)
