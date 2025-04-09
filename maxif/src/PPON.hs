@@ -54,8 +54,10 @@ formatearObjeto hijos = if pponObjetoSimple (ObjetoPP hijos)
           where ctor = map (\(k, v) -> texto (show k) <+> texto ": " <+> pponADoc v)
 
 
--- El esquema de recursion es global, ya que en formatearObjeto se accede directamente a la recursion de una subestructura de hijos,
--- espeficifamente cuando concatenamos el resultado de pponADoc v.
+-- El esquema de recursion es primitiva.
+-- Para los casos bases de la recusion (constructor textoPP o IntPP se devuelve un valor "fijo" (tecnicamente fijo el show pero dependiente del argumento))
+-- En el caso recursivo, durante el llamado a la recursion sobre el resto de la estructura se utiliza solamente la subestructura correspondiente (pponAdoc v) sin modificarla. Todo Esto indicaria que la recursion es estructural,
+-- sin embargo, en el caso recursivo se interactura con las subestructuras cuando se decide si el objeto es simple o no (if pponObjetoSimple (ObjetoPP hijos) donde se recorre cada uno de los hijos) por lo que finalmente es primitiva
 pponADoc :: PPON -> Doc
 pponADoc p = case p of
           TextoPP s -> texto (show s)
