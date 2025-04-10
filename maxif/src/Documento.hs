@@ -47,7 +47,7 @@ d1 <+> d2 = foldDoc d2
                               Texto t' rec' -> Texto (t ++ t') rec'
                               Linea i rec' -> Texto t rec
                     )
-                    Linea 
+                    Linea
                     d1
 -- <+> respeta el invariante de Doc porque:
 --    Si d1 = vacío: se devuelve d2 que ya era un documento válido.
@@ -58,11 +58,10 @@ d1 <+> d2 = foldDoc d2
 --    Si d1 = Linea i rec: lo procesamos de forma que d2 contenga una nueva Linea. Al usar 'Linea' respetamos que i >= 0. rec y d2 ya son documentos válidos.
 
 
-
 indentar :: Int -> Doc -> Doc
 indentar i = foldDoc Vacio Texto (\t rec -> Linea (t + i) rec)
 -- indentar respeta el invariante de Doc porque:
---    Si el doc es vacío se devuelve el caso vacío del foldDoc ----> Vacio.
+--    Si el doc es vacío se devuelve el caso vacío del foldDoc ---> Vacio.
 --    Si es Texto s d: al usar el constructor 'Texto', 's' nunca se modifica y el resto del documento se va procesando recursivamente respetando el invariante.
 --    Si es Linea i d: (t + i) >= 0 ya que i >= 0 y t >= 0. Luego el resto del documento se procesa recursivamente respetando el invariante. 
 

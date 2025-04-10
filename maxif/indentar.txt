@@ -23,7 +23,7 @@ foldDoc :: b -> (String -> b -> b) -> (Int -> b -> b) -> Doc -> b
 
 indentar :: Int -> Doc -> Doc
 (IN) indentar i = foldDoc Vacio
-					(\t rec -> Texto t rec) 
+					(\t rec -> Texto t rec) 				// usamos la versión con la función lambda para que quede más claro a la hora de usar la definición de indentar. (Podríamos usar 'Texto' como en el .hs)
 					(\t rec -> Linea (t + i) rec)
 
 L1) QVQ indentar k Vacio = Vacio para todo k :: Int positivo.
@@ -50,6 +50,7 @@ L3) QVQ indentar m (Linea k d) = Linea (m+k) (indentar m d) para todo m, k :: In
 
 	
 -------------------------------------
+
 
 Ahora que ya demostramos todos los lemas, pasamos a la demo que nos pedían.
 
@@ -114,42 +115,3 @@ Luego, queda demostrado por inducción estructural que para todo n, m :: Int pos
 
 
 .
-
-
-
-----------------------
-
-Versión lemas en ind. estructural no sé si será necesario
-
-Vamos a hacer induccion estructural en Doc.
-P(d): indentar k (Texto s d) = Texto s (indentar k d) para todo k :: Int positivo, s :: String.
-
-CB: d = Vacio
-
-P(Vacio): indentar k (Texto s Vacio) = Texto s (indentar k Vacio)
-
-	Lado izquierdo:
-		(IN) = foldDoc Vacio (\t rec -> Texto t rec) (\t rec -> Linea (t + i) rec) (Texto s Vacio)
-		(FD y Beta) = Texto s (foldDoc Vacio (\t rec -> Texto t rec) (\t rec -> Linea (t + k) rec) Vacio)
-		(FD) = Texto s Vacio
-
-	Lado derecho: 
-		Por la demo del Lema 1, indentar k Vacio = Vacio
-		=> Texto s (indentar k Vacio) = Texto s Vacio
-
-Se cumple la igualdad.
-
-Ahora necesitamos ver que se cumple para d = Texto s' d' o d = Linea n d'.
-
-Sabiendo que vale (HI): indentar k (Texto s' d') = Texto s' (indentar k d')
-
-P(Texto s' d'): indentar k (Texto s (Texto s' d')) = Texto s (indentar k (Texto s' d'))
-
-	Lado izquierdo: indentar k (Texto s (Texto s' d'))
-		(IN) = foldDoc Vacio (\t rec -> Texto t rec) (\t rec -> Linea (t + k) rec) (Texto s (Texto s' d'))
-		(FD y Beta) = Texto s (foldDoc Vacio (\t rec -> Texto t rec) (\t rec -> Linea (t + k) rec) (Texto s' d'))
-		(IN) = Texto s (indentar k (Texto s' d'))
-
-	Se cumple la igualdad.
-
-P(Linea n d'): indentar k (Texto s (Linea n d')) = Texto s (indentar k (Linea n d'))
