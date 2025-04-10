@@ -47,11 +47,11 @@ formatearObjeto :: [(String, PPON)] -> Doc
 formatearObjeto hijos = if pponObjetoSimple (ObjetoPP hijos)
                           then --simple
                             texto "{ "
-                            <+> intercalar (texto ", ") (ctor hijos) 
+                            <+> intercalar (texto ", ") (formatearHijos hijos) 
                             <+> texto " }"
                           else --comp
-                            entreLlaves (ctor hijos)
-          where ctor = map (\(k, v) -> texto (show k) <+> texto ": " <+> pponADoc v)
+                            entreLlaves (formatearHijos hijos)
+          where formatearHijos = map (\(k, v) -> texto (show k) <+> texto ": " <+> pponADoc v)
 
 
 -- El esquema de recursion es primitiva.

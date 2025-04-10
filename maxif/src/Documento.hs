@@ -47,7 +47,8 @@ d1 <+> d2 = foldDoc d2
                               Texto t' rec' -> Texto (t ++ t') rec'
                               Linea i rec' -> Texto t rec
                     )
-                    Linea d1
+                    Linea 
+                    d1
 
 
 
