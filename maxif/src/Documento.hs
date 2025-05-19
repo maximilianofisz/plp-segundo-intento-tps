@@ -67,7 +67,7 @@ indentar i = foldDoc Vacio Texto (\t rec -> Linea (t + i) rec)
 
 
 mostrar :: Doc -> String
-mostrar = foldDoc "" (++) (\i rec -> "\n" ++ (replicate i  ' ') ++ rec) -- FIX: crear los whitespaces directamente con replicate
+mostrar = foldDoc "" (++) (\i rec -> "\n" ++ replicate i  ' ' ++ rec) -- FIX: crear los whitespaces directamente con replicate
 
 
 -- | Función dada que imprime un documento en pantalla
