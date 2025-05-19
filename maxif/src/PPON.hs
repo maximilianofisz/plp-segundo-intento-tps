@@ -14,16 +14,16 @@ pponAtomico ppon = case ppon of
                     IntPP n -> True
                     ObjetoPP o -> False
 
---devuelve True si y solo si el PPON es construido con ObjetoPP Y ademas todos sus sub-objetos son pponAtomicos
+-- devuelve True si y solo si el PPON es construido con ObjetoPP Y ademas todos sus sub-objetos son pponAtomicos
 pponObjetoSimple :: PPON -> Bool
 pponObjetoSimple ppon = case ppon of
                           TextoPP t -> False
                           IntPP n -> False
-                          ObjetoPP hijos -> foldr ((&&) . pponAtomico . snd) True hijos
+                          ObjetoPP hijos -> all (pponAtomico . snd) hijos -- FIX usar funcion all para chequear si todos los hijos cumplen pponAtomico en vez de foldr directamente
 
 intercalar :: Doc -> [Doc] -> Doc
-intercalar separador = foldr (\x rec -> if rec == vacio then x else (x <+> separador) <+> rec) vacio
-
+intercalar separador [] = vacio
+intercalar separador docs  = foldr1 (\x rec -> (x <+> separador) <+> rec) docs  -- FIX: separo caso lista vacia y cambio a foldr1
 
 entreLlaves :: [Doc] -> Doc
 entreLlaves [] = texto "{ }"
@@ -40,24 +40,20 @@ entreLlaves ds =
 aplanar :: Doc -> Doc
 aplanar = foldDoc vacio (\t rec -> texto t <+> rec) (\i rec -> texto " " <+> rec)
 
-
 -- Aux principal de pponADoc
--- Un ObjetoPP se procesa como simple o "compuesto" recursivamente
+-- Un ObjetoPP se procesa como simple o compuesto recursivamente
 formatearObjeto :: [(String, PPON)] -> Doc
 formatearObjeto hijos = if pponObjetoSimple (ObjetoPP hijos)
-                          then --simple
-                            texto "{ "
-                            <+> intercalar (texto ", ") (ctor hijos) 
-                            <+> texto " }"
-                          else --comp
-                            entreLlaves (ctor hijos)
-          where ctor = map (\(k, v) -> texto (show k) <+> texto ": " <+> pponADoc v)
+                          then -- Simple
+                            aplanar (entreLlaves (formatearHijos hijos)) -- FIX: usar aplanar en vez de formatear a mano los simples
+                          else -- Compuesto
+                            entreLlaves (formatearHijos hijos)
+          where formatearHijos = map (\(k, v) -> texto (show k) <+> texto ": " <+> pponADoc v)
 
-
--- El esquema de recursion es primitiva.
--- Para los casos bases de la recusion (constructor textoPP o IntPP se devuelve un valor "fijo" (tecnicamente fijo el show pero dependiente del argumento))
--- En el caso recursivo, durante el llamado a la recursion sobre el resto de la estructura se utiliza solamente la subestructura correspondiente (pponAdoc v) sin modificarla. Todo Esto indicaria que la recursion es estructural,
--- sin embargo, en el caso recursivo se interactura con las subestructuras cuando se decide si el objeto es simple o no (if pponObjetoSimple (ObjetoPP hijos) donde se recorre cada uno de los hijos) por lo que finalmente es primitiva
+-- El esquema de recursión es primitiva.
+-- Para los casos bases de la recursión (constructor textoPP o IntPP se devuelve un valor "fijo" (técnicamente fijo el show pero dependiente del argumento))
+-- En el caso recursivo, durante el llamado a la recursión sobre el resto de la estructura se utiliza solamente la subestructura correspondiente (pponAdoc v) sin modificarla. Todo esto indicaría que la recursión es estructural,
+-- sin embargo, en el caso recursivo se interactúa con las subestructuras cuando se decide si el objeto es simple o no (if pponObjetoSimple (ObjetoPP hijos) donde se recorre cada uno de los hijos) por lo que finalmente es primitiva.
 pponADoc :: PPON -> Doc
 pponADoc p = case p of
           TextoPP s -> texto (show s)

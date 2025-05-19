@@ -10,13 +10,24 @@ main = runTestTTAndExit allTests
 allTests :: Test
 allTests =
   test
-    [ "Ejercicio 2" ~: testsEj2,
+    [ 
+      "Ejercicio 1" ~: testsEj1,
+      "Ejercicio 2" ~: testsEj2,
       "Ejercicio 3" ~: testsEj3,
       "Ejercicio 4" ~: testsEj4,
+      "Ejercicio 5" ~: testsEj5,
       "Ejercicio 6" ~: testsEj6,
       "Ejercicio 7" ~: testsEj7,
       "Ejercicio 8" ~: testsEj8,
       "Ejercicio 9" ~: testsEj9
+    ]
+
+testsEj1 :: Test -- FIX: Se agrega tests
+testsEj1 =
+  test
+    [ foldDoc ("procesando el documento vacio") (\t rec -> "hola") (\i rec -> "chau") vacio ~?= "procesando el documento vacio",
+      foldDoc ("") (\t rec -> t ++ rec) (\i rec -> "") (texto "a" <+> texto "b") ~?= "ab",
+      foldDoc (0) (\t rec -> 0 + rec) (\i rec -> 1 + rec) (linea <+> texto "a" <+> linea <+> texto "b" <+> linea) ~?= 3
     ]
 
 testsEj2 :: Test
@@ -51,6 +62,14 @@ testsEj4 =
       mostrar (vacio <+> texto "a" <+> vacio <+> texto "b") ~?= "ab",
       mostrar (indentar 2 (texto "a" <+> linea <+> texto "b")) ~?= "a\n  b"
     ]
+    
+testsEj5 :: Test -- FIX: Se agrega tests
+testsEj5 =
+  test
+    [ pponAtomico (TextoPP "un texto") ~?= True,
+      pponAtomico (IntPP 1337) ~?= True,
+      pponAtomico (ObjetoPP [("no soy", TextoPP "atomico")]) ~?= False
+    ]
 
 pericles, merlina, addams, familias :: PPON
 pericles = ObjetoPP [("nombre", TextoPP "Pericles"), ("edad", IntPP 30)]
@@ -77,15 +96,16 @@ c = texto "c"
 testsEj7 :: Test
 testsEj7 =
   test
-    [ mostrar (intercalar (texto ", ") []) ~?= "",
+    [ 
+      mostrar (intercalar (texto "!") [vacio,vacio]) ~?= "!",
+      mostrar (intercalar (texto "!") [texto "a",vacio]) ~?= "a!", 
+      mostrar (intercalar (texto ", ") []) ~?= "",
       mostrar (intercalar (texto ", ") [a, b, c]) ~?= "a, b, c",
-      mostrar (intercalar (vacio) [a,b,c]) ~?= "abc",
-      mostrar (intercalar (linea) [a,b,c]) ~?= "a\nb\nc",
+      mostrar (intercalar vacio [a,b,c]) ~?= "abc",
+      mostrar (intercalar linea [a,b,c]) ~?= "a\nb\nc",
       mostrar (intercalar (texto ";" <+> linea) [a,b,c]) ~?= "a;\nb;\nc",
       mostrar (entreLlaves []) ~?= "{ }",
       mostrar (entreLlaves [a, b, c]) ~?= "{\n  a,\n  b,\n  c\n}",
-      mostrar (entreLlaves [vacio,vacio,vacio]) ~?= "{\n  \n}",
-      mostrar (entreLlaves [vacio,vacio]) ~?= "{\n  \n}",
       mostrar (entreLlaves [linea, linea]) ~?= "{\n  \n  ,\n  \n  \n}"
     ]
 
@@ -100,7 +120,6 @@ testsEj8 =
       mostrar (aplanar (entreLlaves [vacio])) ~?= "{  }"
     ]
 
-
 simple1 = ObjetoPP [("test1", IntPP 1), ("test2", IntPP 2), ("test3", IntPP 3)]
 compuestoAnidado = ObjetoPP [("Estoy anidado?", TextoPP "si")]
 compuestoAux = ObjetoPP [("mi unico y preciado hijo", compuestoAnidado)]
@@ -113,7 +132,7 @@ testsEj9 =
   test
     [ mostrar (pponADoc (TextoPP "hola")) ~?= "\"hola\"",
       mostrar (pponADoc (IntPP 1234)) ~?= "1234",
-      mostrar (pponADoc (ObjetoPP [])) ~?= "{  }",
+      mostrar (pponADoc (ObjetoPP [])) ~?= "{ }",
       mostrar (pponADoc pericles) ~?= "{ \"nombre\": \"Pericles\", \"edad\": 30 }",
       mostrar (pponADoc addams) ~?= "{\n  \"0\": { \"nombre\": \"Pericles\", \"edad\": 30 },\n  \"1\": { \"nombre\": \"Merlina\", \"edad\": 24 }\n}",
       mostrar (pponADoc familias) ~?= "{\n  \"Addams\": {\n    \"0\": { \"nombre\": \"Pericles\", \"edad\": 30 },\n    \"1\": { \"nombre\": \"Merlina\", \"edad\": 24 }\n  }\n}",
