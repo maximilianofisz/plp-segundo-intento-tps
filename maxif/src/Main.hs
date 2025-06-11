@@ -10,7 +10,7 @@ main = runTestTTAndExit allTests
 allTests :: Test
 allTests =
   test
-    [ 
+    [
       "Ejercicio 1" ~: testsEj1,
       "Ejercicio 2" ~: testsEj2,
       "Ejercicio 3" ~: testsEj3,
@@ -25,9 +25,9 @@ allTests =
 testsEj1 :: Test -- FIX: Se agrega tests
 testsEj1 =
   test
-    [ foldDoc ("procesando el documento vacio") (\t rec -> "hola") (\i rec -> "chau") vacio ~?= "procesando el documento vacio",
-      foldDoc ("") (\t rec -> t ++ rec) (\i rec -> "") (texto "a" <+> texto "b") ~?= "ab",
-      foldDoc (0) (\t rec -> 0 + rec) (\i rec -> 1 + rec) (linea <+> texto "a" <+> linea <+> texto "b" <+> linea) ~?= 3
+    [ foldDoc "procesando el documento vacio" (\t rec -> "hola") (\i rec -> "chau") vacio ~?= "procesando el documento vacio",
+      foldDoc "" (++) (\i rec -> "") (texto "a" <+> texto "b") ~?= "ab",
+      foldDoc 0 (\t rec -> 0 + rec) (\i rec -> 1 + rec) (linea <+> texto "a" <+> linea <+> texto "b" <+> linea) ~?= 3
     ]
 
 testsEj2 :: Test
@@ -62,7 +62,7 @@ testsEj4 =
       mostrar (vacio <+> texto "a" <+> vacio <+> texto "b") ~?= "ab",
       mostrar (indentar 2 (texto "a" <+> linea <+> texto "b")) ~?= "a\n  b"
     ]
-    
+
 testsEj5 :: Test -- FIX: Se agrega tests
 testsEj5 =
   test
@@ -96,9 +96,9 @@ c = texto "c"
 testsEj7 :: Test
 testsEj7 =
   test
-    [ 
+    [
       mostrar (intercalar (texto "!") [vacio,vacio]) ~?= "!",
-      mostrar (intercalar (texto "!") [texto "a",vacio]) ~?= "a!", 
+      mostrar (intercalar (texto "!") [texto "a",vacio]) ~?= "a!",
       mostrar (intercalar (texto ", ") []) ~?= "",
       mostrar (intercalar (texto ", ") [a, b, c]) ~?= "a, b, c",
       mostrar (intercalar vacio [a,b,c]) ~?= "abc",

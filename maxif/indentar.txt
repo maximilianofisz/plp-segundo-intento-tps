@@ -77,42 +77,44 @@ CB: d = Vacio.
 
 Quiero ver que también cumplen los documentos de tipo Texto y Linea. Es decir d = Texto s' d' o d = Linea i d'.
 
-PI 1: 
-	QVQ P(Texto s' d'): para todo n, m :: Int positivos. indentar n (indentar m (Texto s' d')) = indentar (n+m) (Texto s' d')
+PI:
+	Caso d = Texto s' d':
+		QVQ P(Texto s' d'): para todo n, m :: Int positivos. indentar n (indentar m (Texto s' d')) = indentar (n+m) (Texto s' d')
 
-	Suponemos que la propiedad vale para las subestructuras. Es decir:
-	HI1: para todo n, m :: Int positivos. indentar n (indentar m d') = indentar (n+m) d'
+		Suponemos que la propiedad vale para las subestructuras. Es decir:
+		HI1: P(d'): para todo n, m :: Int positivos. indentar n (indentar m d') = indentar (n+m) d'
 
-	Lado izquierdo:
-		indentar n (indentar m (Texto s' d'))
-		(L2) = indentar n (Texto s' (indentar m d'))
-		(L2) = Texto s' (indentar n (indentar m d'))
-		(HI1) = Texto s' (indentar (n+m) d')
+		Lado izquierdo:
+			indentar n (indentar m (Texto s' d'))
+			(L2) = indentar n (Texto s' (indentar m d'))
+			(L2) = Texto s' (indentar n (indentar m d'))
+			(HI1) = Texto s' (indentar (n+m) d')
 
-	Lado derecho:
-		indentar (n+m) (Texto s' d')
-		(L2) = Texto s' (indentar (n+m) d')
+		Lado derecho:
+			indentar (n+m) (Texto s' d')
+			(L2) = Texto s' (indentar (n+m) d')
 
-	Se cumple la igualdad.
+		Se cumple la igualdad.
 
-PI 2:
-	QVQ P(Linea i d'): para todo n, m :: Int positivos. indentar n (indentar m (Linea i d')) = indentar (n+m) (Linea i d')
+	Caso d = Linea i d':
+		QVQ P(Linea i d'): para todo n, m :: Int positivos. indentar n (indentar m (Linea i d')) = indentar (n+m) (Linea i d')
 
-	Suponemos que la propiedad vale para las subestructuras. Es decir:
-	HI2: para todo n, m :: Int positivos. indentar n (indentar m d') = indentar (n+m) d'
+		Suponemos que la propiedad vale para las subestructuras. Es decir:
+		HI2: P(d'): para todo n, m :: Int positivos. indentar n (indentar m d') = indentar (n+m) d'
+		Notamos que HI2 = HI1 ya que ambos constructores utilizan las mismas subestructuras.
 
-	Lado izquierdo:
-		indentar n (indentar m (Linea i d'))
-		(L3) = indentar n (Linea (m+i) (indentar m d'))
-		(L3) = Linea (n+(m+i)) (indentar n (indentar m d'))
-		(HI2) = Linea (n+(m+i)) (indentar (n+m) d')
+		Lado izquierdo:
+			indentar n (indentar m (Linea i d'))
+			(L3) = indentar n (Linea (m+i) (indentar m d'))
+			(L3) = Linea (n+(m+i)) (indentar n (indentar m d'))
+			(HI2) = Linea (n+(m+i)) (indentar (n+m) d')
 
-	Lado derecho:
-		indentar (n+m) (Linea i d')
-		(L3) = Linea ((n+m)+i) (indentar (n+m) d')
-		(Int) = Linea (n+(m+i)) (indentar (n+m) d')
+		Lado derecho:
+			indentar (n+m) (Linea i d')
+			(L3) = Linea ((n+m)+i) (indentar (n+m) d')
+			(Int) = Linea (n+(m+i)) (indentar (n+m) d')
 
-	Se cumple la igualdad.
+		Se cumple la igualdad.
 
 Luego, queda demostrado por inducción estructural que para todo n, m :: Int positivos y x :: Doc,
 	indentar n (indentar m x) = indentar (n+m) x
