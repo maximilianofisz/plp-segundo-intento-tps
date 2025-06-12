@@ -44,3 +44,15 @@ kPiezas(K, PS) :- nombrePiezas(Piezas), kAux(K, Piezas, PS).
 kAux(0, _, []).
 kAux(K, [X | Piezas ] , [X |PS]) :- K > 0, length(Piezas, Y), K1 is K-1, Y >= K1, kAux(K1, Piezas, PS).
 kAux(K, [_ | Piezas ] , PS) :- K > 0, length(Piezas, Y), Y >= K, kAux(K, Piezas, PS).
+
+% Ej 6
+%seccionTablero(+T, +ALTO, +ANCHO, +IJ, ?ST)
+seccionTablero(T, ALTO, ANCHO, (I, J), ST) :-
+  I1 is I - 1,
+  sublista(I1, ALTO, T, FilasSeleccionadas),
+  maplist(subcolumna(J, ANCHO), FilasSeleccionadas, ST).
+
+%subcolumna(+Inicio, +Largo, +Fila, -SubFila)
+subcolumna(Inicio, Largo, Fila, SubFila) :-
+    I1 is Inicio - 1,
+    sublista(I1, Largo, Fila, SubFila).
