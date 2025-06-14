@@ -56,3 +56,12 @@ seccionTablero(T, ALTO, ANCHO, (I, J), ST) :-
 subcolumna(Inicio, Largo, Fila, SubFila) :-
     I1 is Inicio - 1,
     sublista(I1, Largo, Fila, SubFila).
+
+% Ej 7
+%ubicarPieza(+Tablero, +Identificador)
+ubicarPieza(T, ID) :-
+  pieza(ID, E),
+  tamano(E, F, C),
+  coordenadas(T, (I, J)),
+  seccionTablero(T, F, C, (I, J), ST),
+  ST = E.
