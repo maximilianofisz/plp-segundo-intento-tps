@@ -1,49 +1,68 @@
 :- use_module(piezas).
 
-% Completar ...
-
-%Ej 1
+% Ej 1
 %sublista(+Descartar, +Tomar, +L, -R)
-sublista(D, T, L, R) :- append(L1, L2, L), length(L1, D), append(R, _, L2), length(R, T).
+sublista(D, T, L, R) :-
+  append(L1, L2, L),
+  length(L1, D),
+  append(R, _, L2),
+  length(R, T).
 
 % Ej 2
 %tablero(+K, -T)
 %tablero(K, T) :- K > 0, crearFilas(5, K, T).
 %PREGUNTAR: Tenemos esta opcion de aca con maplist y otra haciendo recursion                                                    
 
-tablero(K, T) :- K > 0, length(T, 5), maplist(columnas(K), T).
-columnas(K, L) :- length(L, K).
-
+tablero(K, T) :-
+  K > 0,
+  length(T, 5),
+  maplist(columnas(K), T).
+columnas(K, L) :-
+  length(L, K).
 
 tablero2(K, T) :- K > 0, tableroAux(K, T, 5).
+
 tableroAux(_, [], 0).
 tableroAux(K, [X|Ts], C) :- C > 0, length(X, K), C1 is C - 1, tableroAux(K, Ts, C1).
 
-
-%Ej 3
+% Ej 3
 %tamaño(+M, -F, -C)
 %tamano(M, F, C) :- length(M, F), member(X, M), length(X, C).
-tamano(M, F, C) :- length(M, F), maplist(columnas(C), M).
+tamano(M, F, C) :-
+  length(M, F),
+  maplist(columnas(C), M).
 %PREGUNTAR: Estamos usando bastante mapList, esta ok o deberiamos usar otro predicado (forEach, forall, etc)? Cuales son las diferencias?
- 
 
 % Ej 4
 %coordenadas(+T, -IJ)
-coordenadas(T, (I, J)) :- tamano(T, _, C), between(1, 5, I), between(1, C, J).
+coordenadas(T, (I, J)) :-
+  tamano(T, _, C),
+  between(1, 5, I),
+  between(1, C, J).
 
 %PREGUNTAR: Medio random calculo que esta ok pero en consultas como tablero(3, T), coordenadas(T, IJ). prolog nos escupe tmb la unif de T, todo pelota?
 %42 ?- tablero(3, T), coordenadas(T, IJ).
 %T = [[_, _, _], [_, _, _], [_, _, _], [_, _, _], [_, _, _]],
 %IJ = (1, 1) ;
 
-
-%Ej 5
+% Ej 5
 %kPiezas(+K, -PS)
-kPiezas(K, PS) :- nombrePiezas(Piezas), kAux(K, Piezas, PS).
+kPiezas(K, PS) :-
+  nombrePiezas(Piezas),
+  kAux(K, Piezas, PS).
 
 kAux(0, _, []).
-kAux(K, [X | Piezas ] , [X |PS]) :- K > 0, length(Piezas, Y), K1 is K-1, Y >= K1, kAux(K1, Piezas, PS).
-kAux(K, [_ | Piezas ] , PS) :- K > 0, length(Piezas, Y), Y >= K, kAux(K, Piezas, PS).
+kAux(K, [X | Piezas ], [X |PS]) :-
+  K > 0,
+  length(Piezas, Y),
+  K1 is K-1,
+  Y >= K1,
+  kAux(K1, Piezas, PS).
+kAux(K, [_ | Piezas ], PS) :-
+  K > 0,
+  length(Piezas, Y),
+  Y >= K,
+  kAux(K, Piezas, PS).
 
 % Ej 6
 %seccionTablero(+T, +ALTO, +ANCHO, +IJ, ?ST)
@@ -63,5 +82,51 @@ ubicarPieza(T, ID) :-
   pieza(ID, E),
   tamano(E, F, C),
   coordenadas(T, (I, J)),
-  seccionTablero(T, F, C, (I, J), ST),
-  ST = E.
+  seccionTablero(T, F, C, (I, J), E).
+
+% Ej 8
+%ubicarPiezas(+Tablero, +Poda, +Identificadores)
+ubicarPiezas(_, _, []).
+%ubicarPiezas(T, _, [ID]) :-
+%  ubicarPieza(T, ID).
+ubicarPiezas(T, Poda, [ID | IDS]) :-
+  ubicarPieza(T, ID),
+  poda(Poda, T),
+  ubicarPiezas(T, Poda, IDS).
+
+%poda(+Poda, +Tablero)
+poda(sinPoda, _).
+poda(podaMod5, T) :- todosGruposLibresModulo5(T).
+
+% Ej 9
+%llenarTablero(+Poda, +Columnas, -Tablero)
+llenarTablero(Poda, Columnas, T) :-
+  tablero(Columnas, T),
+  kPiezas(Columnas, IDS),
+  ubicarPiezas(T, Poda, IDS).
+
+% Ej 10
+cantSoluciones(Poda, Columnas, N) :-
+  findall(T, llenarTablero(Poda, Columnas, T), TS),
+  length(TS, N).
+
+% ?- time(cantSoluciones(sinPoda, 3, N)).
+% 38,415,870 inferences, 2.297 CPU in 2.735 seconds (84% CPU, 16725277 Lips)
+% N = 28.
+
+% ?- time(cantSoluciones(sinPoda, 4, N)).
+% 1,505,808,293 inferences, 90.531 CPU in 98.922 seconds (92% CPU, 16633022 Lips)
+% N = 200.
+
+% Ej 11
+%todosGruposLibresModulo5(+Tablero)
+todosGruposLibresModulo5(T) :-
+  coordenadas(T, Coordenadas),
+  findall(Coordenadas, libre, Libres),
+  agrupar(Libres, G),
+  forall(member(X, G), length(X, N), mod(N, 5) =:= 0).
+
+libre((I, J)) :-
+  var(I),
+  var(J).
+% completarrrrrrrr
