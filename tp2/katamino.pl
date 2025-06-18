@@ -8,42 +8,59 @@ sublista(D, T, L, R) :-
   append(R, _, L2),
   length(R, T).
 
+% Queremos analizar el caso de sublista(-Descartar, +Tomar, +L, +R).
+% El predicado sublista/4 como fue implementado es reversible en su primer y cuarto argumento:
+% puede ser utilizado para decidir si una lista es sublista de otra.
+% sublista/4 utiliza predicados reversibles en todos sus parámetros, por tanto la consulta se realiza sin problemas.
+% Al no instanciar el primer parámetro,
+% el predicado intentara descartar hasta encontrar el posible principio de la sublista consultada.
+% Si hay multiples inicios posibles, habra posiblemene multiples soluciones (si efectivamente la sublista aparece repetida (2)).
+% Esos intentos serán, si la consulta tiene exito, los valores que podra tomar Descartar. Luego, la consulta sera exitosa si el restante
+% luego del descarte es la sublista consultada, que ahora viene instanciada en R, (1) (o la sublista y algo mas) y habrá una unica solución.
+% Si al descartar nunca nos encontramos con el inicio de la sublista (4), o al descartar el restante es mas pequeño que
+% Tomar (3), no habra solución.
+
+% (*1)
+% ?- sublista(X, 2, [a,b,c,d], [c,d]).
+% X = 2
+
+% (*2)
+% ?- sublista(X, 1, [a,b,a,b], [b]).
+% X = 1
+% X = 3
+
+% (*3)
+% ?- sublista(X, 4, [a,b], [a,b,c,d]).
+% false
+
+% (*4)
+% ?- sublista(X, 2, [a,b,c], [d]).
+% false
+
+% ................................
+
 % Ej 2
 %tablero(+K, -T)
-%tablero(K, T) :- K > 0, crearFilas(5, K, T).
-%PREGUNTAR: Tenemos esta opcion de aca con maplist y otra haciendo recursion                                                    
-
 tablero(K, T) :-
   K > 0,
   length(T, 5),
   maplist(columnas(K), T).
+
 columnas(K, L) :-
   length(L, K).
 
-tablero2(K, T) :- K > 0, tableroAux(K, T, 5).
-
-tableroAux(_, [], 0).
-tableroAux(K, [X|Ts], C) :- C > 0, length(X, K), C1 is C - 1, tableroAux(K, Ts, C1).
-
 % Ej 3
-%tamaño(+M, -F, -C)
-%tamano(M, F, C) :- length(M, F), member(X, M), length(X, C).
-tamano(M, F, C) :-
+%dimensiones(+M, -F, -C)
+dimensiones(M, F, C) :-
   length(M, F),
   maplist(columnas(C), M).
-%PREGUNTAR: Estamos usando bastante mapList, esta ok o deberiamos usar otro predicado (forEach, forall, etc)? Cuales son las diferencias?
 
 % Ej 4
 %coordenadas(+T, -IJ)
 coordenadas(T, (I, J)) :-
-  tamano(T, _, C),
+  dimensiones(T, _, C),
   between(1, 5, I),
   between(1, C, J).
-
-%PREGUNTAR: Medio random calculo que esta ok pero en consultas como tablero(3, T), coordenadas(T, IJ). prolog nos escupe tmb la unif de T, todo pelota?
-%42 ?- tablero(3, T), coordenadas(T, IJ).
-%T = [[_, _, _], [_, _, _], [_, _, _], [_, _, _], [_, _, _]],
-%IJ = (1, 1) ;
 
 % Ej 5
 %kPiezas(+K, -PS)
@@ -65,11 +82,11 @@ kAux(K, [_ | Piezas ], PS) :-
   kAux(K, Piezas, PS).
 
 % Ej 6
-%seccionTablero(+T, +ALTO, +ANCHO, +IJ, ?ST)
-seccionTablero(T, ALTO, ANCHO, (I, J), ST) :-
+%seccionTablero(+T, +Alto, +Ancho, +IJ, ?ST)
+seccionTablero(T, Alto, Ancho, (I, J), ST) :-
   I1 is I - 1,
-  sublista(I1, ALTO, T, FilasSeleccionadas),
-  maplist(subcolumna(J, ANCHO), FilasSeleccionadas, ST).
+  sublista(I1, Alto, T, FilasSeleccionadas),
+  maplist(subcolumna(J, Ancho), FilasSeleccionadas, ST).
 
 %subcolumna(+Inicio, +Largo, +Fila, -SubFila)
 subcolumna(Inicio, Largo, Fila, SubFila) :-
@@ -80,15 +97,13 @@ subcolumna(Inicio, Largo, Fila, SubFila) :-
 %ubicarPieza(+Tablero, +Identificador)
 ubicarPieza(T, ID) :-
   pieza(ID, E),
-  tamano(E, F, C),
+  dimensiones(E, F, C),
   coordenadas(T, (I, J)),
   seccionTablero(T, F, C, (I, J), E).
 
 % Ej 8
 %ubicarPiezas(+Tablero, +Poda, +Identificadores)
 ubicarPiezas(_, _, []).
-%ubicarPiezas(T, _, [ID]) :-
-%  ubicarPieza(T, ID).
 ubicarPiezas(T, Poda, [ID | IDS]) :-
   ubicarPieza(T, ID),
   poda(Poda, T),
@@ -121,12 +136,19 @@ cantSoluciones(Poda, Columnas, N) :-
 % Ej 11
 %todosGruposLibresModulo5(+Tablero)
 todosGruposLibresModulo5(T) :-
-  coordenadas(T, Coordenadas),
-  findall(Coordenadas, libre, Libres),
-  agrupar(Libres, G),
-  forall(member(X, G), length(X, N), mod(N, 5) =:= 0).
+  findall((I, J), casillaLibre(T, (I, J)), Libres),
+  agrupar(Libres, Grupos),
+  forall(member(G, Grupos), (length(G, N), mod(N, 5) =:= 0)).
 
-libre((I, J)) :-
-  var(I),
-  var(J).
-% completarrrrrrrr
+casillaLibre(T, (I, J)) :-
+  nth1(I, T, Fila),
+  nth1(J, Fila, Casilla),
+  var(Casilla).
+
+% ?- time(cantSoluciones(podaMod5, 3, N)).
+% 17,435,859 inferences, 1.078 CPU in 1.178 seconds (91% CPU, 16172391 Lips)
+% N = 28.
+
+% ?- time(cantSoluciones(podaMod5, 4, N)).
+% 359,313,587 inferences, 20.875 CPU in 21.888 seconds (95% CPU, 17212627 Lips)
+% N = 200.
