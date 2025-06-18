@@ -9,16 +9,13 @@ sublista(D, T, L, R) :-
   length(R, T).
 
 % Queremos analizar el caso de sublista(-Descartar, +Tomar, +L, +R).
-% El predicado sublista/4 como fue implementado es reversible en su primer y cuarto argumento:
-% puede ser utilizado para decidir si una lista es sublista de otra.
-% sublista/4 utiliza predicados reversibles en todos sus parámetros, por tanto la consulta se realiza sin problemas.
-% Al no instanciar el primer parámetro,
-% el predicado intentara descartar hasta encontrar el posible principio de la sublista consultada.
-% Si hay multiples inicios posibles, habra posiblemene multiples soluciones (si efectivamente la sublista aparece repetida (2)).
-% Esos intentos serán, si la consulta tiene exito, los valores que podra tomar Descartar. Luego, la consulta sera exitosa si el restante
-% luego del descarte es la sublista consultada, que ahora viene instanciada en R, (1) (o la sublista y algo mas) y habrá una unica solución.
-% Si al descartar nunca nos encontramos con el inicio de la sublista (4), o al descartar el restante es mas pequeño que
-% Tomar (3), no habra solución.
+% El predicado sublista/4 como fue implementado es reversible en su primer y cuarto argumento, es decir puede ser utilizado para decidir si una lista es sublista de otra.
+% Como sublista/4 utiliza predicados reversibles en todos sus parámetros, la consulta se realizará sin problemas.
+% Al no instanciar el primer parámetro, el predicado intentará descartar hasta encontrar el posible principio de la sublista consultada.
+% Si hay múltiples inicios posibles, habrá posiblemente múltiples soluciones (si efectivamente la sublista aparece repetida (2)).
+% Si la consulta tiene éxito, esos intentos serán los valores que podrá tomar Descartar. 
+% Luego, la consulta será exitosa si el restante luego del descarte es la sublista consultada. Esta sublista ahora viene instanciada en R, (1) (o la sublista y algo más) y habrá una unica solución.
+% Si al descartar nunca nos encontramos con el inicio de la sublista (4), o al descartar el restante es mas pequeño que Tomar (3), no habrá solución.
 
 % (*1)
 % ?- sublista(X, 2, [a,b,c,d], [c,d]).
